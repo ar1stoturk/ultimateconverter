@@ -1,0 +1,17 @@
+Flask
+ffmpeg-python
+Pillow
+yt-dlp
+pypdf
+pdf2docx
+moviepy
+reportlab
+werkzeug
+pytesseract
+pyinstaller
+fake-useragent
+psutil
+pillow-heif
+pyopenssl
+flask-socketio
+eventlet

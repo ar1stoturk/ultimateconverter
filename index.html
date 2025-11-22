@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTIMATE CONVERTER PRO</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Socket.IO Client -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+
+<body>
+    <div class="bg-particles" id="particles"></div>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar glass-panel">
+            <div class="logo">
+                <i class="fa-solid fa-infinity fa-spin-pulse"></i>
+                <span>ULTIMATE <span class="pro-badge">PRO</span></span>
+            </div>
+
+            <ul class="nav-links">
+                <li class="active" data-tab="dashboard"><i class="fa-solid fa-grid-2"></i> <span
+                        data-i18n="nav_dashboard">Dashboard</span></li>
+                <li data-tab="audio"><i class="fa-solid fa-music"></i> <span data-i18n="nav_audio">Audio</span></li>
+                <li data-tab="video"><i class="fa-solid fa-video"></i> <span data-i18n="nav_video">Video</span></li>
+                <li data-tab="image"><i class="fa-solid fa-image"></i> <span data-i18n="nav_image">Image</span></li>
+                <li data-tab="url"><i class="fa-brands fa-youtube"></i> <span data-i18n="nav_url">URL / Web</span></li>
+                <li data-tab="docs"><i class="fa-solid fa-file-pdf"></i> <span data-i18n="nav_docs">Documents</span>
+                </li>
+                <li data-tab="history"><i class="fa-solid fa-clock-rotate-left"></i> <span
+                        data-i18n="nav_history">History</span></li>
+                <li data-tab="faq"><i class="fa-solid fa-circle-question"></i> <span data-i18n="nav_faq">FAQ /
+                        Help</span></li>
+            </ul>
+
+            <div class="bottom-controls">
+                <div class="lang-selector">
+                    <button onclick="setLanguage('tr')">TR</button>
+                    <button onclick="setLanguage('en')">EN</button>
+                    <button onclick="setLanguage('de')">DE</button>
+                </div>
+                <div class="settings-btn" onclick="openSettings()">
+                    <i class="fa-solid fa-gear"></i> <span data-i18n="settings">Settings</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="glass-panel header-bar">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard</h1>
+                </div>
+
+                <!-- System Monitor Widget -->
+                <div class="system-monitor-header">
+                    <div class="monitor-item">
+                        <i class="fa-solid fa-microchip"></i>
+                        <span>CPU</span>
+                        <div class="monitor-bar-mini">
+                            <div class="monitor-fill" id="cpu-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="monitor-item">
+                        <i class="fa-solid fa-memory"></i>
+                        <span>RAM</span>
+                        <div class="monitor-bar-mini">
+                            <div class="monitor-fill" id="ram-bar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="server-status">
+                        <div class="status-dot"></div>
+                        <span data-i18n="system_online">System Online</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="music-player-mini">
+                        <div class="music-visualizer">
+                            <span></span><span></span><span></span><span></span>
+                        </div>
+                        <button id="music-toggle" class="btn-icon"><i class="fa-solid fa-pause"></i></button>
+                        <div class="music-status">Lofi Radio Live</div>
+                        <div id="youtube-player"></div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard View -->
+            <div id="dashboard" class="view active">
+                <div class="hero-section">
+                    <h2 data-i18n="hero_title">Limitless Conversion Power</h2>
+                    <p data-i18n="hero_subtitle">Convert anything to anything. Fast, secure, and local.</p>
+                </div>
+
+                <div class="tools-grid">
+                    <div class="tool-card" onclick="switchTab('audio')">
+                        <div class="icon-box audio-glow"><i class="fa-solid fa-music"></i></div>
+                        <h3 data-i18n="card_audio_title">Audio Converter</h3>
+                        <p data-i18n="card_audio_desc">MP3, WAV, FLAC, AAC</p>
+                    </div>
+                    <div class="tool-card" onclick="switchTab('video')">
+                        <div class="icon-box video-glow"><i class="fa-solid fa-video"></i></div>
+                        <h3 data-i18n="card_video_title">Video Converter</h3>
+                        <p data-i18n="card_video_desc">MP4, MKV, AVI, WEBM</p>
+                    </div>
+                    <div class="tool-card" onclick="switchTab('image')">
+                        <div class="icon-box image-glow"><i class="fa-solid fa-image"></i></div>
+                        <h3 data-i18n="card_image_title">Image Converter</h3>
+                        <p data-i18n="card_image_desc">JPG, PNG, WEBM, ICO</p>
+                    </div>
+                    <div class="tool-card" onclick="switchTab('url')">
+                        <div class="icon-box url-glow"><i class="fa-brands fa-youtube"></i></div>
+                        <h3 data-i18n="card_url_title">URL Downloader</h3>
+                        <p data-i18n="card_url_desc">YouTube, Spotify -> MP3/MP4</p>
+                    </div>
+                    <div class="tool-card" onclick="switchTab('docs')">
+                        <div class="icon-box"><i class="fa-solid fa-file-pdf"></i></div>
+                        <h3 data-i18n="nav_docs">Document Converter</h3>
+                        <p data-i18n="desc_docs">PDF to Word, Text to PDF</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audio View -->
+            <div id="audio" class="view">
+                <div class="converter-interface glass-panel">
+                    <h2><i class="fa-solid fa-music"></i> <span data-i18n="nav_audio">Audio Converter</span></h2>
+                    <div class="upload-zone" id="audio-dropzone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p data-i18n="drag_drop">Drag & Drop Audio Files Here</p>
+                        <button class="btn-select" data-i18n="select_files">Select Files</button>
+                        <input type="file" id="audio-input" hidden multiple accept="audio/*">
+                    </div>
+                    <div class="settings-panel">
+                        <label data-i18n="format">Format:</label>
+                        <select id="audio-format" class="glass-select">
+                            <option value="mp3">MP3</option>
+                            <option value="wav">WAV</option>
+                            <option value="flac">FLAC</option>
+                            <option value="aac">AAC</option>
+                            <option value="ogg">OGG</option>
+                        </select>
+                        <label data-i18n="bitrate">Bitrate:</label>
+                        <select id="audio-bitrate" class="glass-select">
+                            <option value="320k">320 kbps (High)</option>
+                            <option value="192k">192 kbps (Medium)</option>
+                            <option value="128k">128 kbps (Low)</option>
+                        </select>
+                        <button class="btn-convert" onclick="startConversion('audio')" data-i18n="convert_now">Convert
+                            Now</button>
+                    </div>
+                    <div class="file-list" id="audio-file-list"></div>
+                </div>
+            </div>
+
+            <!-- Video View -->
+            <div id="video" class="view">
+                <div class="converter-interface glass-panel">
+                    <h2><i class="fa-solid fa-video"></i> <span data-i18n="nav_video">Video Converter</span></h2>
+                    <div class="upload-zone" id="video-dropzone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p data-i18n="drag_drop">Drag & Drop Video Files Here</p>
+                        <button class="btn-select" data-i18n="select_files">Select Files</button>
+                        <input type="file" id="video-input" hidden multiple accept="video/*">
+                    </div>
+                    <div class="settings-panel">
+                        <label data-i18n="format">Format:</label>
+                        <select id="video-format" class="glass-select">
+                            <option value="mp4">MP4</option>
+                            <option value="mkv">MKV</option>
+                            <option value="avi">AVI</option>
+                            <option value="mov">MOV</option>
+                            <option value="webm">WEBM</option>
+                        </select>
+                        <label data-i18n="resolution">Resolution:</label>
+                        <select id="video-resolution" class="glass-select">
+                            <option value="">Original</option>
+                            <option value="1920x1080">1080p</option>
+                            <option value="1280x720">720p</option>
+                            <option value="854x480">480p</option>
+                        </select>
+                        <label data-i18n="fps">FPS:</label>
+                        <select id="video-fps" class="glass-select">
+                            <option value="">Original</option>
+                            <option value="60">60 FPS</option>
+                            <option value="30">30 FPS</option>
+                        </select>
+                        <button class="btn-convert" onclick="startConversion('video')" data-i18n="convert_now">Convert
+                            Now</button>
+                    </div>
+                    <div class="file-list" id="video-file-list"></div>
+                </div>
+            </div>
+
+            <!-- Image View -->
+            <div id="image" class="view">
+                <div class="converter-interface glass-panel">
+                    <h2><i class="fa-solid fa-image"></i> <span data-i18n="nav_image">Image Converter</span></h2>
+                    <div class="upload-zone" id="image-dropzone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p data-i18n="drag_drop">Drag & Drop Images Here</p>
+                        <button class="btn-select" data-i18n="select_files">Select Files</button>
+                        <input type="file" id="image-input" hidden multiple accept="image/*">
+                    </div>
+                    <div class="settings-panel">
+                        <label data-i18n="format">Format:</label>
+                        <select id="image-format" class="glass-select">
+                            <option value="png">PNG</option>
+                            <option value="jpg">JPG</option>
+                            <option value="webp">WEBP</option>
+                            <option value="bmp">BMP</option>
+                            <option value="ico">ICO</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                        <label data-i18n="resize">Resize:</label>
+                        <input type="number" id="image-width" class="glass-input" placeholder="Width"
+                            style="width: 80px;">
+                        <span style="margin: 0 5px;">x</span>
+                        <input type="number" id="image-height" class="glass-input" placeholder="Height"
+                            style="width: 80px;">
+
+                        <label data-i18n="quality">Quality:</label>
+                        <input type="range" id="image-quality" min="10" max="100" value="90" style="width: 100px;">
+                        <span id="quality-val">90%</span>
+
+                        <button class="btn-convert" onclick="startConversion('image')" data-i18n="convert_now">Convert
+                            Now</button>
+                    </div>
+                    <div class="file-list" id="image-file-list"></div>
+                </div>
+            </div>
+
+            <!-- URL Converter View -->
+            <div id="url" class="view">
+                <div class="converter-interface glass-panel">
+                    <h2><i class="fa-brands fa-youtube"></i> <span data-i18n="nav_url">URL Downloader</span></h2>
+                    <div class="url-input-group">
+                        <input type="text" id="url-input" class="glass-input"
+                            placeholder="Paste link here (YouTube, Spotify, etc.)">
+                        <button class="btn-paste" onclick="pasteUrl()"><i class="fa-solid fa-paste"></i></button>
+                    </div>
+                    <div class="settings-panel">
+                        <label data-i18n="mode">Mode:</label>
+                        <select id="url-mode" class="glass-select">
+                            <option value="audio">Audio Only (MP3)</option>
+                            <option value="video">Video (Best Quality)</option>
+                        </select>
+                        <button class="btn-convert" onclick="startUrlConversion()" data-i18n="download_convert">Download
+                            & Convert</button>
+                    </div>
+                    <div class="status-log" id="url-status"></div>
+                </div>
+            </div>
+
+            <!-- Docs Converter View -->
+            <div id="docs" class="view">
+                <div class="converter-interface glass-panel">
+                    <h2><i class="fa-solid fa-file-pdf"></i> <span data-i18n="nav_docs">Document Converter</span></h2>
+                    <div class="upload-zone" id="docs-dropzone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p data-i18n="drag_drop">Drag & Drop Documents Here</p>
+                        <button class="btn-select" data-i18n="select_files">Select Files</button>
+                        <input type="file" id="docs-input" hidden multiple accept=".pdf,.docx,.txt">
+                    </div>
+                    <div class="settings-panel">
+                        <label data-i18n="action">Action:</label>
+                        <select id="docs-action" class="glass-select">
+                            <option value="pdf_to_docx">PDF to Word</option>
+                            <option value="txt_to_pdf">Text to PDF</option>
+                            <option value="docx_to_pdf" disabled>Word to PDF (Disabled)</option>
+                        </select>
+                        <button class="btn-convert" onclick="startConversion('docs')"
+                            data-i18n="process">Process</button>
+                    </div>
+                    <div class="file-list" id="docs-file-list"></div>
+                </div>
+            </div>
+
+            <!-- History View -->
+            <div id="history" class="view">
+                <div class="converter-interface glass-panel">
+                    <h2><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="nav_history">Conversion
+                            History</span></h2>
+                    <div class="history-list" id="history-list">
+                        <!-- Populated by JS -->
+                        <p style="text-align: center; color: #aaa;">No history yet.</p>
+                    </div>
+                    <button class="btn-action" onclick="clearHistory()" style="margin-top: 20px;"
+                        data-i18n="clear_history">Clear History</button>
+                </div>
+            </div>
+
+            <!-- FAQ View -->
+            <div id="faq" class="view">
+                <div class="converter-interface glass-panel">
+                    <h2><i class="fa-solid fa-circle-question"></i> <span data-i18n="nav_faq">FAQ / Help</span></h2>
+                    <div class="faq-container">
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q1">How do I convert a file?</summary>
+                            <p data-i18n="faq_a1">Select the category from the sidebar, drag and drop your file, choose
+                                the format, and click Convert.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q2">Is it secure?</summary>
+                            <p data-i18n="faq_a2">Yes! Everything runs locally on your machine. No files are uploaded to
+                                the internet.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q3">What if conversion fails?</summary>
+                            <p data-i18n="faq_a3">Check if the file is corrupted. For media files, ensure FFmpeg is
+                                installed correctly.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q5">Can I download YouTube videos?</summary>
+                            <p data-i18n="faq_a5">Yes, use the URL Downloader tab. Paste the link and choose Audio or
+                                Video mode.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q6">What is Permanent Mode?</summary>
+                            <p data-i18n="faq_a6">It creates a script to run the converter silently in the background
+                                when you start your computer.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q7">How to create an EXE?</summary>
+                            <p data-i18n="faq_a7">Go to Settings and click 'Create'. It compiles the app into a
+                                standalone executable file.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q8">Supported formats?</summary>
+                            <p data-i18n="faq_a8">We support MP3, MP4, PNG, JPG, PDF, DOCX, and many more advanced
+                                formats like FLAC, MKV, WEBP.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q9">Is it free?</summary>
+                            <p data-i18n="faq_a9">Yes, this is a free and open-source tool running on your local
+                                machine.</p>
+                        </details>
+                        <details class="faq-item">
+                            <summary data-i18n="faq_q10">System Requirements?</summary>
+                            <p data-i18n="faq_a10">Windows 10/11, Python 3.x, FFmpeg.</p>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <span class="close-modal" onclick="closeSettings()">&times;</span>
+            <h2 data-i18n="settings_title">System Settings</h2>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-i18n="theme_title">Theme</h3>
+                    <p data-i18n="theme_desc">Select your preferred visual style.</p>
+                </div>
+                <select id="theme-selector" class="glass-select" onchange="changeTheme(this.value)">
+                    <option value="neon">Neon (Default)</option>
+                    <option value="matrix">Matrix</option>
+                    <option value="sunset">Sunset</option>
+                </select>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-i18n="permanent_mode">Permanent Mode</h3>
+                    <p data-i18n="permanent_desc">Run silently in background on startup.</p>
+                </div>
+                <button class="btn-action" onclick="makePermanent()" data-i18n="btn_activate">Activate</button>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-i18n="create_exe">Create Application (.exe)</h3>
+                    <p data-i18n="exe_desc">Compile this entire system into a standalone executable.</p>
+                </div>
+                <button class="btn-action" onclick="createExe()" data-i18n="btn_create">Create</button>
+            </div>
+
+            <div class="setting-item">
+                <div class="setting-info">
+                    <h3 data-i18n="bot_protection">Bot Protection Bypass</h3>
+                    <p data-i18n="bot_desc">Advanced user-agent randomization is active by default.</p>
+                </div>
+                <div class="badge-active" data-i18n="active">ACTIVE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div id="welcome-modal" class="welcome-modal">
+        <div class="welcome-content">
+            <h2>Teşekkürler!</h2>
+            <p>Merhaba, bu aracı kullandığınız için teşekkürler.</p>
+            <p>Bu araç, Antigravity aracılığı ile <span class="highlight">*Yapay Zekâ*</span> ile hazırlanmıştır.</p>
+            <p>Ücretsiz olmasının sebebi budur.</p>
+            <p style="font-size: 0.9rem; color: #aaa; margin-top: 20px;">
+                Tamamiyle açık kaynaklıdır,
+                Evet bunu ben yapmadım ama toplamda dört saatimi kusursuz çalışması için yapay zeka ile sohbet ederek
+                herhangi bir otomasyon kullanmadan yaptım.
+            </p>
+            <p style="margin-top: 10px;">İyi eğlenceler.</p>
+            <button class="btn-welcome" onclick="closeWelcome()">Başla</button>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
